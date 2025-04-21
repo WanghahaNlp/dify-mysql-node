@@ -4,7 +4,7 @@
 @Time: 2025-04-17 09:34:14
 @Author: WangLei 
 @Version: v1.0
-@Desc: 新建项目
+@Desc: Mysql的连接器
 
 # TODO: 代表项目该完成的尚未完成的任务或者功能。
 # FIXME: 代表项目中的问题或者bug, 需要修复。
@@ -13,12 +13,12 @@
 # ? 表示疑问, 需要进一步确认的内容。
 # ! 表示警告, 可能有风险, 需要注意
 """
-from loguru import logger
 from dify_plugin import ToolProvider
 from dify_plugin.errors.tool import ToolProviderCredentialValidationError
+from loguru import logger
+from tools.mysql_client import MySQLClient
 from tools.utils import get_config
 from typing import Any
-from tools.mysql_client import MySQLClient
 
 
 class MysqlClientNodeProvider(ToolProvider):
