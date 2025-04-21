@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 .history/
+dify_plugin/
 *.py[cod]
 *$py.class
 

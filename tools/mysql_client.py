@@ -49,6 +49,7 @@ class MySQLClient:
         return session
 
     def insert(self, data: dict):
+        """插入数据"""
         session = self.__connect__(self.db_name)
         try:
             metadata = MetaData()
@@ -86,7 +87,62 @@ class MySQLClient:
         finally:
             session.close()
 
-    def select(self, data: dict):
+    def _lambda(self, table, column: str, value, operators: str):
+        if operators == "==":
+            return table.c[column] == value
+        elif operators == "!=":
+            return table.c[column] != value
+        elif operators == ">":
+            return table.c[column] > value
+        elif operators == "<":
+            return table.c[column] < value
+        elif operators == ">=":
+            return table.c[column] >= value
+        elif operators == "<=":
+            return table.c[column] <= value
+        elif operators == "between":
+            if not isinstance(value, list) or len(value) != 2:
+                raise ValueError("Value for 'between' operator must be a list of two elements.")
+            return table.c[column].between(value[0], value[1])
+        elif operators == "in":
+            if not isinstance(value, list):
+                raise ValueError("Value for 'in' operator must be a list.")
+            return table.c[column].in_(value)
+        elif operators == "like":
+            return table.c[column].like(value)
+        elif operators == "ilike":
+            return table.c[column].ilike(value)
+        elif operators == "raw":
+            if not isinstance(value, str):
+                raise ValueError("Value for 'raw' operator must be a string.")
+            # 这里假设 raw 是一个 SQL 表达式
+            return eval(value)
+        else:
+            raise ValueError(f"Unsupported operator: {operators}")
+
+    def select(self, data: list):
+        """
+        data = [['id', '==', '12'], ["name", "like", "%dify%"]]
+        # 比较运算符
+        "==", "!=", ">", "<", ">=", "<="
+
+        # 特殊操作符
+        "between"  # 区间查询
+        "in"       # 包含查询
+        "like"     # 模糊查询（区分大小写）
+        "ilike"    # 模糊查询（不区分大小写）
+        "raw"      # 原生SQL表达式
+        [
+            ["name", "==", "dify"],
+            ["age", ">", 18],
+            ["age", "<", 30],
+            ["age", "between", [18, 30]],
+            ["name", "in", ["dify", "dify2"]],
+            ["name", "like", "%dify%"],
+            ["name", "ilike", "%dify%"],
+            ["raw", "id > 10"]
+        ]
+        """
         session = self.__connect__(self.db_name)
         try:
             metadata = MetaData()
@@ -95,7 +151,7 @@ class MySQLClient:
             if table is None:
                 raise ValueError(f"Table '{self.table_name}' not found in database '{self.db_name}'")
 
-            condition = [table.c[key] == value for key, value in data.items()]
+            condition = [self._lambda(table, key, value, operators) for key, operators, value in data]
             select_stmt = table.select().where(*condition)
             result = session.execute(select_stmt).fetchall()
             result = [dict(row._mapping) for row in result] if result else []

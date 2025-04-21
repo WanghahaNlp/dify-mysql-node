@@ -1,0 +1,52 @@
+identity:
+  name: insert
+  author: wanglei
+  label:
+    en_US: Add data
+    zh_Hans: 添加数据
+description:
+  human:
+    en_US: Add data
+    zh_Hans: 添加数据
+  llm: 添加数据
+
+parameters:
+  - name: db_name
+    type: string
+    required: true
+    label:
+      en_US: Name of the database
+      zh_Hans: 数据库的名称
+    human_description:
+      en_US: Name of the database
+      zh_Hans: 数据库的名称
+    llm_description: 数据库的名称
+    form: llm
+
+  - name: table_name
+    type: string
+    required: true
+    label:
+      en_US: Name of the table
+      zh_Hans: 表的名称
+    human_description:
+      en_US: Name of the table
+      zh_Hans: 表的名称
+    llm_description: 表的名称
+    form: llm
+
+  - name: formula
+    type: string
+    required: false
+    label:
+      en_US: New data
+      zh_Hans: 新增数据
+    human_description:
+      en_US: Add data {"id":"12","name":"MyPlugin"}
+      zh_Hans: 新增数据{"id":"12","name":"MyPlugin"}
+    llm_description: 数据库操作的公式
+    form: llm
+
+extra:
+  python:
+    source: tools/insert.py

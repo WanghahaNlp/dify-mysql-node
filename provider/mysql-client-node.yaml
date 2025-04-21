@@ -12,7 +12,8 @@ identity:
     - utilities
 
 tools:
-  - tools/mysql_tools.yaml
+  - tools/insert.yaml
+  - tools/select.yaml
 
 credentials_for_provider:
   db_host:

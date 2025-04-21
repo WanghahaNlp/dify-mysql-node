@@ -1,0 +1,52 @@
+identity:
+  name: select
+  author: wanglei
+  label:
+    en_US: Select data
+    zh_Hans: 查询数据
+description:
+  human:
+    en_US: Select data
+    zh_Hans: 查询数据
+  llm: 查询数据
+
+parameters:
+  - name: db_name
+    type: string
+    required: true
+    label:
+      en_US: Name of the database
+      zh_Hans: 数据库的名称
+    human_description:
+      en_US: Name of the database
+      zh_Hans: 数据库的名称
+    llm_description: 数据库的名称
+    form: llm
+
+  - name: table_name
+    type: string
+    required: true
+    label:
+      en_US: Name of the table
+      zh_Hans: 表的名称
+    human_description:
+      en_US: Name of the table
+      zh_Hans: 表的名称
+    llm_description: 表的名称
+    form: llm
+
+  - name: formula
+    type: string
+    required: false
+    label:
+      en_US: Select data
+      zh_Hans: 搜索数据
+    human_description:
+      en_US: Select data {"id":"12","name":"MyPlugin"}
+      zh_Hans: 搜索数据 [["id", "==", "12"]], ["列名", "操作符", "值"], 操作符有： 比较运算符：==, !=, >, >=, <, <=； 特殊操作符：between, in, like, ilike
+    llm_description: 筛选条件
+    form: llm
+
+extra:
+  python:
+    source: tools/select.py
