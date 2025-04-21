@@ -1,0 +1,47 @@
+identity:
+  author: wanglei
+  name: mysql-client-node
+  label:
+    en_US: MySQL Client
+    zh_Hans: MySQL 客户端
+  description:
+    en_US: Provide workflow nodes with the ability to read and write databases.
+    zh_Hans: 在工作流中提供读写数据库能力的节点。
+  icon: icon.svg
+  tags:
+    - utilities
+
+tools:
+  - tools/mysql_tools.yaml
+
+credentials_for_provider:
+  db_host:
+    type: text-input
+    required: true
+    default: "localhost"
+    label:
+      en_US: "Host address of the database"
+      zh_Hans: "数据库的主机地址"
+  db_port:
+    type: text-input
+    required: true
+    default: "5432"
+    label:
+      en_US: "Port number of the database"
+      zh_Hans: "数据库的端口号"
+  db_user:
+    type: text-input
+    required: true
+    label:
+      en_US: "Username for database access"
+      zh_Hans: "数据库访问的用户名"
+  db_password:
+    type: secret-input
+    required: true
+    label:
+      en_US: "Password for database access"
+      zh_Hans: "数据库访问的密码"
+
+extra:
+  python:
+    source: provider/mysql_client_node.py
