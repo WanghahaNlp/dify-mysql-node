@@ -85,3 +85,23 @@ class MySQLClient:
             raise e
         finally:
             session.close()
+
+    def select(self, data: dict):
+        session = self.__connect__(self.db_name)
+        try:
+            metadata = MetaData()
+            metadata.reflect(bind=session.bind)
+            table = metadata.tables.get(self.table_name)
+            if table is None:
+                raise ValueError(f"Table '{self.table_name}' not found in database '{self.db_name}'")
+
+            condition = [table.c[key] == value for key, value in data.items()]
+            select_stmt = table.select().where(*condition)
+            result = session.execute(select_stmt).fetchall()
+            result = [dict(row._mapping) for row in result] if result else []
+            return result
+        except SQLAlchemyError as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
