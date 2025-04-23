@@ -24,8 +24,12 @@ from typing import Any
 class MysqlClientNodeProvider(ToolProvider):
     def _validate_credentials(self, credentials: dict[str, Any]) -> None:
         try:
+            flag = "-"
             db_config = get_config(credentials)
-            flag, message = MySQLClient(**db_config).test_connect()
+            ms = MySQLClient(**db_config)
+            a = 3
+            flag, message = ms.test_connect()
+            a = 4
             if not flag:
                 raise ToolProviderCredentialValidationError(
                     f"Failed to connect to MySQL: {message}"
@@ -35,4 +39,4 @@ class MysqlClientNodeProvider(ToolProvider):
                     f"Successfully connected to MySQL: {db_config['host']}:{db_config['port']}"
                 )
         except Exception as e:
-            raise ToolProviderCredentialValidationError(str(e))
+            raise ToolProviderCredentialValidationError(str(e) + f"a = {a}, b = {message}")

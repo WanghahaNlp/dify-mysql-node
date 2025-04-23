@@ -25,13 +25,10 @@ class MySQLClient:
                 connect_args={"connect_timeout": self.timeout}
             )
             with engine.connect():
-                return True, ""
-        except SQLAlchemyError as e:
-            return False, str(e)
+                return True, "true"
         except Exception as e:
             return False, str(e)
-        finally:
-            engine.dispose()
+
 
     def __connect__(self, db_name):
         if db_name not in self.engine_cache:

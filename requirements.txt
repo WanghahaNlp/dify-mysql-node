@@ -1,3 +1,4 @@
 dify_plugin~=0.0.1b72
 loguru==0.7.3
+PyMySQL==1.1.1
 SQLAlchemy==2.0.40
