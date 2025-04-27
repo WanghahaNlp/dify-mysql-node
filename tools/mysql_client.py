@@ -29,7 +29,6 @@ class MySQLClient:
         except Exception as e:
             return False, str(e)
 
-
     def __connect__(self, db_name):
         if db_name not in self.engine_cache:
             self.engine_cache[db_name] = create_engine(
@@ -65,7 +64,29 @@ class MySQLClient:
         finally:
             session.close()
 
-    def delete(self, data: dict):
+    def select(self, data: list):
+        """
+        data = [['id', '==', '12'], ["name", "like", "%dify%"]]
+        # 比较运算符
+        "==", "!=", ">", "<", ">=", "<="
+
+        # 特殊操作符
+        "between"  # 区间查询
+        "in"       # 包含查询
+        "like"     # 模糊查询（区分大小写）
+        "ilike"    # 模糊查询（不区分大小写）
+        "raw"      # 原生SQL表达式
+        [
+            ["name", "==", "dify"],
+            ["age", ">", 18],
+            ["age", "<", 30],
+            ["age", "between", [18, 30]],
+            ["name", "in", ["dify", "dify2"]],
+            ["name", "like", "%dify%"],
+            ["name", "ilike", "%dify%"],
+            ["raw", "id > 10"]
+        ]
+        """
         session = self.__connect__(self.db_name)
         try:
             metadata = MetaData()
@@ -74,10 +95,11 @@ class MySQLClient:
             if table is None:
                 raise ValueError(f"Table '{self.table_name}' not found in database '{self.db_name}'")
 
-            delete_stmt = table.delete().where(table.c.id == data["id"])
-            result = session.execute(delete_stmt)
-            session.commit()
-            return result.rowcount  # 返回删除的行数
+            condition = [self._lambda(table, key, value, operators) for key, operators, value in data]
+            select_stmt = table.select().where(*condition)
+            result = session.execute(select_stmt).fetchall()
+            result = [dict(row._mapping) for row in result] if result else []
+            return result
         except SQLAlchemyError as e:
             session.rollback()
             raise e
@@ -117,29 +139,7 @@ class MySQLClient:
         else:
             raise ValueError(f"Unsupported operator: {operators}")
 
-    def select(self, data: list):
-        """
-        data = [['id', '==', '12'], ["name", "like", "%dify%"]]
-        # 比较运算符
-        "==", "!=", ">", "<", ">=", "<="
-
-        # 特殊操作符
-        "between"  # 区间查询
-        "in"       # 包含查询
-        "like"     # 模糊查询（区分大小写）
-        "ilike"    # 模糊查询（不区分大小写）
-        "raw"      # 原生SQL表达式
-        [
-            ["name", "==", "dify"],
-            ["age", ">", 18],
-            ["age", "<", 30],
-            ["age", "between", [18, 30]],
-            ["name", "in", ["dify", "dify2"]],
-            ["name", "like", "%dify%"],
-            ["name", "ilike", "%dify%"],
-            ["raw", "id > 10"]
-        ]
-        """
+    def delete(self, data: dict):
         session = self.__connect__(self.db_name)
         try:
             metadata = MetaData()
@@ -148,11 +148,29 @@ class MySQLClient:
             if table is None:
                 raise ValueError(f"Table '{self.table_name}' not found in database '{self.db_name}'")
 
-            condition = [self._lambda(table, key, value, operators) for key, operators, value in data]
-            select_stmt = table.select().where(*condition)
-            result = session.execute(select_stmt).fetchall()
-            result = [dict(row._mapping) for row in result] if result else []
-            return result
+            delete_stmt = table.delete().where(table.c.id == data["id"])
+            result = session.execute(delete_stmt)
+            session.commit()
+            return result.rowcount  # 返回删除的行数
+        except SQLAlchemyError as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
+
+    def update(self, data: dict):
+        session = self.__connect__(self.db_name)
+        try:
+            metadata = MetaData()
+            metadata.reflect(bind=session.bind)
+            table = metadata.tables.get(self.table_name)
+            if table is None:
+                raise ValueError(f"Table '{self.table_name}' not found in database '{self.db_name}'")
+
+            update_stmt = table.update().where(table.c.id == data["id"]).values(**data)
+            result = session.execute(update_stmt)
+            session.commit()
+            return result.rowcount  # 返回更新的行数
         except SQLAlchemyError as e:
             session.rollback()
             raise e
